@@ -2,6 +2,7 @@
 
 using namespace std;
 
+//do not compile this when run dhasher.cpp, this will cause compile error with duplicate main function
 
 string username, password;
 
