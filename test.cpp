@@ -6,7 +6,7 @@ using namespace std;
 
 string username, password;
 
-string setup(string a, string b)
+void setup(string a, string b)
 {
     if (a=="-u")
     {
