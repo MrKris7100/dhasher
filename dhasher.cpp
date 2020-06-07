@@ -17,6 +17,7 @@ copyrights (C) 2020 MrKris7100
 #define WIN32
 
 using namespace std;
+
 //Function for splitting string into array using specified delimiter
 vector<string> StringSplit(const char *str, char c = ' ')
 {
@@ -35,7 +36,7 @@ vector<string> StringSplit(const char *str, char c = ' ')
     return result;
 }
 //Global variables
-int n_threads = 8; //number of hashing threads
+int n_threads = 4; //number of hashing threads
 vector<string> job_data; //job data received from server
 int result; //result variable
 int diff; //difficulty variable
@@ -89,18 +90,30 @@ int TimerDiff(chrono::high_resolution_clock::time_point handle)
 }
 //Hashrate report thread
 void *hs(void * arg) {
+    vector<int> hashrate;
     while(true)
     {
         auto sec = TimerInit();
         while(TimerDiff(sec) < 1000) {usleep(1000);}
-        printf("Hashrate: %i h/s\n", hashes);
+        if(hashrate.size() < 50)
+        {
+            hashrate.push_back(hashes);
+        } else {
+            rotate(hashrate.begin(), hashrate.begin()+1, hashrate.end());
+            hashrate[49] = hashes;
+        }
+        hashes = 0;
+        int average = 0;
+        for(int i = 0; i < hashrate.size(); i++)
+            average += hashrate[i];
+        average /= hashrate.size();
+        printf("Hashrate: %i h/s\n", average);
         hashes = 0;
     }
 }
 
 int main(int argc, char const *argv[])
 {
-
     easysock::init(); // init socket library
 
     auto s = easysock::tcp::connect("3.20.98.123", 16198); //connect to server
